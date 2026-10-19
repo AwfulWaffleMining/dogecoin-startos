@@ -31,7 +31,7 @@ const dict = {
   'Chain Sync': 22,
   'Waiting for Dogecoin Core to answer RPC': 23,
   'Synced at block ${height}': 24,
-  'At block ${height}; fetching the header chain': 25,
+  'Fetching the header chain: ${headers} headers so far': 25,
   'Syncing: block ${height} of ${tip} (${pct}%)': 26,
 } as const
 

@@ -58,6 +58,16 @@ export const main = sdk.setupMain(async ({ effects }) => {
     LISTEN: store?.listen === false ? '0' : '1',
   }
 
+  /* Highest `headers` seen so far. Dogecoin fetches the header chain in
+   * batches, so during the first few minutes `headers` is "how many headers
+   * have arrived", not the network tip — and block/headers hovers near a
+   * constant small percentage while BOTH numbers climb. Comparing successive
+   * probes is how we tell "still collecting headers" from "headers done, now
+   * downloading blocks", which are the two phases a user actually wants
+   * distinguished. */
+  let maxHeaders = 0
+  let headersStable = 0
+
   const readChainInfo = async (): Promise<ChainInfo | null> => {
     try {
       const res = await sub.exec(
@@ -129,25 +139,35 @@ export const main = sdk.setupMain(async ({ effects }) => {
             }
           }
 
-          // Headers arrive long before blocks, so until the header chain is in
-          // there is no denominator to report progress against.
-          if (!headers || headers <= blocks) {
+          if (headers > maxHeaders) {
+            maxHeaders = headers
+            headersStable = 0
+          } else {
+            headersStable += 1
+          }
+
+          /* Phase 1: the header chain is still arriving, so there is no
+             trustworthy denominator. Report the headers themselves — that
+             number climbing is the honest signal of progress — and do NOT
+             compute a percentage against a moving target. */
+          if (headersStable < 2 || !headers || headers <= blocks) {
             return {
               result: 'loading' as const,
-              message: i18n('At block ${height}; fetching the header chain', {
-                height: String(blocks),
-              }),
+              message: i18n(
+                'Fetching the header chain: ${headers} headers so far',
+                { headers: String(headers || 0) },
+              ),
             }
           }
 
-          /* Percentage from BLOCK COUNT, deliberately not from
-           * verificationprogress.
+          /* Phase 2: headers have settled, so they are the network tip and
+           * block/headers is a real percentage.
            *
-           * verificationprogress is weighted by transaction volume, and
-           * Dogecoin's early blocks are nearly empty while its recent ones are
-           * not. Early in a sync it reads far lower than the real position: a
-           * node 0.5% through by that measure can be several percent through
-           * by height. Block count is cruder but it does not mislead. */
+           * Deliberately NOT verificationprogress, which is weighted by
+           * transaction volume: Dogecoin's early blocks are nearly empty and
+           * its recent ones are not, so early in a sync that field reads far
+           * below the node's real position. Block count is cruder and does
+           * not mislead. */
           const pct = ((blocks / headers) * 100).toFixed(2)
           return {
             result: 'loading' as const,

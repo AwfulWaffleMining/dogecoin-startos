@@ -40,7 +40,7 @@ export default {
     22: 'Sincronización de la cadena',
     23: 'Esperando a que Dogecoin Core responda al RPC',
     24: 'Sincronizado en el bloque ${height}',
-    25: 'En el bloque ${height}; obteniendo la cadena de encabezados',
+    25: 'Obteniendo la cadena de encabezados: ${headers} encabezados hasta ahora',
     26: 'Sincronizando: bloque ${height} de ${tip} (${pct}%)',
   },
   de_DE: {
@@ -69,7 +69,7 @@ export default {
     22: 'Kettensynchronisation',
     23: 'Warte darauf, dass Dogecoin Core auf RPC antwortet',
     24: 'Synchronisiert bei Block ${height}',
-    25: 'Bei Block ${height}; Header-Kette wird geladen',
+    25: 'Header-Kette wird geladen: bisher ${headers} Header',
     26: 'Synchronisiere: Block ${height} von ${tip} (${pct}%)',
   },
   pl_PL: {
@@ -98,7 +98,7 @@ export default {
     22: 'Synchronizacja łańcucha',
     23: 'Czekam, aż Dogecoin Core odpowie na RPC',
     24: 'Zsynchronizowano na bloku ${height}',
-    25: 'Na bloku ${height}; pobieranie łańcucha nagłówków',
+    25: 'Pobieranie łańcucha nagłówków: dotąd ${headers} nagłówków',
     26: 'Synchronizacja: blok ${height} z ${tip} (${pct}%)',
   },
   fr_FR: {
@@ -127,7 +127,7 @@ export default {
     22: 'Synchronisation de la chaîne',
     23: 'En attente d’une réponse RPC de Dogecoin Core',
     24: 'Synchronisé au bloc ${height}',
-    25: 'Au bloc ${height} ; récupération de la chaîne d’en-têtes',
+    25: 'Récupération de la chaîne d’en-têtes : ${headers} en-têtes jusqu’ici',
     26: 'Synchronisation : bloc ${height} sur ${tip} (${pct}%)',
   },
 } satisfies Record<string, LangDict>
