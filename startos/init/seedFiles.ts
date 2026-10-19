@@ -34,8 +34,14 @@ export const seedFiles = sdk.setupOnInit(async (effects, kind) => {
        * into dogecoin.conf as `rpcpassword=...`, which Dogecoin parses to
        * end-of-line, and it also passes through a shell in the entrypoint.
        * Narrowing the charset removes both classes of quoting bug instead of
-       * trusting the escaping to be right in both places. */
-      rpcPassword: utils.getDefaultString({ charset: 'a-zA-Z0-9', len: 44 }),
+       * trusting the escaping to be right in both places.
+       *
+       * The charset is COMMA-SEPARATED ranges. 'a-zA-Z0-9' is not a valid
+       * spec and throws `unexpected "A"` — the parser finishes the a-z range,
+       * meets 'A' with nowhere to put it, and gives up. It typechecks either
+       * way, because charset is just a string, so the only way this surfaces
+       * is at install time as a Service Runtime Error. */
+      rpcPassword: utils.getDefaultString({ charset: 'a-z,A-Z,0-9', len: 44 }),
     })
     console.info('Generated the Dogecoin RPC credential')
   }

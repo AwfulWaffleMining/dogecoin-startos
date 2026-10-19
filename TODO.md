@@ -5,14 +5,12 @@ before the next depends on it.
 
 ## Before a first build on hardware
 
-- [ ] **Add the `DEV_KEY` repository secret** before running the Build
-      workflow, same key as the other packages in this account use. Without it
-      the reusable workflow fails at the signing step.
-- [ ] **Build the `.s9pk`** from the Actions tab: Build -> Run workflow, then
-      download the artifact from the run summary. That artifact is what
-      sideloads into StartOS. There is no need for a local `start-cli` or
-      Docker toolchain.
-- [ ] **Install it on a StartOS box.** Nothing below has
+- [x] **Build the `.s9pk` in CI.** Green as of the first successful run;
+      see AGENTS.md "Building: four things that fail a fresh repo" for what it
+      took. The Docker build, the manifest validation and the signing all pass.
+- [ ] **Install it on a StartOS box.** This is the first time any of
+      `interfaces.ts`, the health checks, the entrypoint's config generation or
+      the RPC credential seeding runs for real. Nothing below has
       been exercised on real StartOS yet; the package typechecks and bundles,
       which is not the same thing. Expect the first install to surface
       something in `startos/interfaces.ts`, since bind semantics are the part
@@ -31,6 +29,12 @@ before the next depends on it.
       and record the real figure here.
 
 ## Correctness and safety
+
+- [ ] **Add a smoke test for anything with a runtime-parsed string.** The
+      charset bug (`'a-zA-Z0-9'` instead of `'a-z,A-Z,0-9'`) passed tsc, the
+      SDK lint, the bundle and `s9pk pack`, and only failed at install with an
+      error naming neither the field nor the file. A three-line script that
+      calls `getDefaultString` would have caught it in a second.
 
 - [ ] **Exercise the non-writable-datadir guard as a non-root uid.** It cannot
       fire during local testing because root ignores the mode bits, so that
