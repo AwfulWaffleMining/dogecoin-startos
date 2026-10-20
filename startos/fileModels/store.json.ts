@@ -3,33 +3,37 @@ import { sdk } from '../sdk'
 
 export const shape = z
   .object({
-    /* RPC credentials, generated once on install.
+    /* RPC authorisation entries, one per consumer, in Dogecoin's own
+     * `<user>:<salt>$<hmac>` form.
      *
-     * Cookie auth would avoid storing a password, but the cookie is rewritten
-     * on every dogecoind start, so a sibling package holding one would break
-     * on every restart of this one. A stored credential is stable, which is
-     * what a dependent package needs. */
-    rpcUsername: z.string().catch('dogecoin'),
-    rpcPassword: z.string().catch(''),
+     * NO PASSWORD IS STORED ANYWHERE. Each entry holds a salted HMAC-SHA256
+     * of a password that is shown to the operator exactly once, when they
+     * create the user, and is unrecoverable afterwards. A leaked store.json
+     * or dogecoin.conf therefore leaks no credential.
+     *
+     * Local callers — the health check, dogecoin-cli inside the container —
+     * use the cookie file instead and need no entry here. This split is the
+     * one bitcoin-core-startos uses. */
+    rpcAuth: z.array(z.string()).catch([]),
 
     /* Expose the RPC beyond this container.
      *
      * Off by default. Dogecoin's RPC is password-protected, unlike go-quai's,
      * but it still carries wallet methods, so it is not bound outward unless
-     * the operator asks — the same posture that package takes with shareRpc. */
+     * the operator asks. */
     shareRpc: z.boolean().catch(false),
 
     /* Prune the chain.
      *
      * 0 keeps the full chain, which is what lets this node serve blocks to
-     * peers rather than only consume them. A pruned node can still mine: ask
-     * it for a block template and it builds one from the UTXO set it has. It
-     * just cannot help anyone else sync. */
+     * peers rather than only consume them. A pruned node still validates
+     * every block it sees and tracks balances normally; it just cannot help
+     * anyone else sync, because it no longer holds the history. */
     pruneMiB: z.number().int().min(0).catch(0),
 
-    /* Address and transaction index. Off by default: txindex roughly doubles
-     * the time to sync and is only needed to look up arbitrary historical
-     * transactions, which a mining node never does. */
+    /* Transaction index. Off by default: txindex roughly doubles the time to
+     * sync and is only needed to look up arbitrary historical transactions by
+     * id, which ordinary wallet and peering use never does. */
     txindex: z.boolean().catch(false),
 
     /* Database cache in MiB. Raising this is the single biggest lever on

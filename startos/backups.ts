@@ -27,8 +27,9 @@ export const { createBackup, restoreInit } = sdk.setupBackups(async () =>
       `${dataSubdir}/fee_estimates.dat`,
       `${dataSubdir}/.lock`,
       `${dataSubdir}/dogecoind.pid`,
-      // Regenerated from store.json on every start, and it holds the RPC
-      // password in cleartext — no reason to copy it into a backup.
+      // Derived state: rewritten from store.json on every start, so restoring
+      // a stale copy would be at best pointless and at worst misleading. It
+      // holds no secret either — only `rpcauth` hashes, never a password.
       `${dataSubdir}/dogecoin.conf`,
     ],
   }),

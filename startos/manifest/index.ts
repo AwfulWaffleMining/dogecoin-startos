@@ -24,7 +24,7 @@ export const manifest = setupManifest({
         },
       },
       // x86_64 only for now: the aarch64 release tarball needs its checksum
-      // verified by hand before it can be pinned. See TODO.md.
+      // verified by hand before it can be pinned.
       arch: ['x86_64'],
     },
   },

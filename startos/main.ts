@@ -42,13 +42,15 @@ export const main = sdk.setupMain(async ({ effects }) => {
   )
 
   /* Config goes to the entrypoint as environment, which writes dogecoin.conf
-   * inside the datadir. Not as argv: the RPC password would then be visible
-   * in the process list, and dogecoin-cli needs to find the same credentials
-   * without being handed them on every call. */
+   * inside the datadir. Not as argv, where it would be visible in the host
+   * process list.
+   *
+   * RPC_AUTH is newline-separated because dogecoin.conf takes one `rpcauth=`
+   * line per consumer and there may be several. Each is already a hash, so
+   * nothing secret travels here. */
   const env: Record<string, string> = {
     DOGECOIN_DATADIR: datadir,
-    RPC_USERNAME: store?.rpcUsername ?? 'dogecoin',
-    RPC_PASSWORD: store?.rpcPassword ?? '',
+    RPC_AUTH: (store?.rpcAuth ?? []).join('\n'),
     RPC_PORT: String(rpcPort),
     P2P_PORT: String(p2pPort),
     SHARE_RPC: store?.shareRpc ? '1' : '0',

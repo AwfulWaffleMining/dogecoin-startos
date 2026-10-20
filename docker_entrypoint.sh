@@ -2,9 +2,10 @@
 # Writes dogecoin.conf from the environment set in startos/main.ts, then runs
 # dogecoind in the foreground under StartOS supervision.
 #
-# The config goes in a file rather than on the command line so the RPC
-# password stays out of the process list, and so dogecoin-cli finds the same
-# credentials from -datadir without being handed them on every call.
+# The conf contains NO PASSWORD. Local callers (the sync health check,
+# dogecoin-cli inside this container) authenticate with the .cookie file
+# dogecoind writes itself; external consumers each get an `rpcauth` entry,
+# which is a salted HMAC and not reversible.
 set -eu
 
 DATADIR="${DOGECOIN_DATADIR:-/data/dogecoin}"
@@ -13,12 +14,6 @@ CONF="$DATADIR/dogecoin.conf"
 # ── validate before touching the filesystem ───────────────────────────────
 # Every check that can fail the start belongs here, ahead of any write, so a
 # rejected configuration leaves no half-written dogecoin.conf behind.
-
-if [ -z "${RPC_PASSWORD:-}" ]; then
-  echo "FATAL: RPC_PASSWORD is empty. startos/init seeds it on install;" >&2
-  echo "       an empty value here means the store was not initialised." >&2
-  exit 1
-fi
 
 # prune and txindex are mutually exclusive, and dogecoind's own error for the
 # combination only arrives after it has begun loading the block index.
@@ -46,14 +41,21 @@ umask 077
   echo "# Change these through the service's StartOS config instead."
   echo
   echo "server=1"
-  echo "rpcuser=${RPC_USERNAME:-dogecoin}"
-  echo "rpcpassword=${RPC_PASSWORD}"
   echo "rpcport=${RPC_PORT:-22555}"
   echo "port=${P2P_PORT:-22556}"
   echo "dbcache=${DBCACHE_MIB:-450}"
   echo "prune=${PRUNE_MIB:-0}"
   echo "txindex=${TXINDEX:-0}"
   echo "listen=${LISTEN:-1}"
+
+  # One rpcauth line per consumer. Each is already <user>:<salt>$<hmac>, so
+  # no password is written here or held in the store — local callers such as
+  # the health check use the .cookie file dogecoind writes instead.
+  if [ -n "${RPC_AUTH:-}" ]; then
+    printf '%s\n' "$RPC_AUTH" | while IFS= read -r entry; do
+      [ -n "$entry" ] && echo "rpcauth=$entry"
+    done
+  fi
 
   # The container's own address is not predictable, so RPC binds to all
   # interfaces and StartOS decides what is reachable from outside. When

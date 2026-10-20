@@ -60,7 +60,7 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
       name: i18n('JSON-RPC'),
       id: rpcInterfaceId,
       description: i18n(
-        'Dogecoin JSON-RPC, used by a solo mining package to build block templates against this node. Password-protected, but it also exposes wallet methods: share it only with packages on this server that need it.',
+        'Dogecoin JSON-RPC, for other packages on this server that need a trusted Dogecoin node. Password-protected, but it also exposes wallet methods: share it only with packages that need it.',
       ),
       type: 'api',
       masked: false,

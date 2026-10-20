@@ -8,7 +8,7 @@ export const inputSpec = InputSpec.of({
   shareRpc: Value.toggle({
     name: i18n('Share node RPC with other packages'),
     description: i18n(
-      'Needed by a solo mining package on this server to build block templates against your own node. The RPC is password-protected, but it also exposes wallet methods, so leave this off unless something needs it.',
+      'Let other packages on this server talk to this node. The RPC is password-protected, but it also exposes wallet methods, so leave this off unless something needs it.',
     ),
     default: false,
   }),
@@ -22,7 +22,7 @@ export const inputSpec = InputSpec.of({
   pruneMiB: Value.number({
     name: i18n('Prune to (MiB)'),
     description: i18n(
-      'Zero keeps the full chain, which is required to serve blocks to other nodes. A pruned node can still mine — it builds templates from the UTXO set it has — but it cannot help anyone else sync. Minimum useful value is about 2048.',
+      'Zero keeps the full chain, which is required to serve blocks to other nodes. A pruned node still validates everything and tracks your balances, but it cannot help anyone else sync. Minimum useful value is about 2048.',
     ),
     default: 0,
     min: 0,
@@ -40,7 +40,7 @@ export const inputSpec = InputSpec.of({
   txindex: Value.toggle({
     name: i18n('Transaction index'),
     description: i18n(
-      'Builds an index of every transaction, which roughly doubles initial sync time. Needed only to look up arbitrary historical transactions by id; mining and wallet use do not require it. Cannot be combined with pruning.',
+      'Builds an index of every transaction, which roughly doubles initial sync time. Needed only to look up arbitrary historical transactions by id; ordinary wallet use does not require it. Cannot be combined with pruning.',
     ),
     default: false,
   }),
