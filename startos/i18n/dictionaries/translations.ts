@@ -60,6 +60,7 @@ export default {
     49: 'No hay ningún usuario RPC llamado ${username}. Usuarios existentes: ${users}',
     50: 'Usuario RPC eliminado',
     51: '${username} ya no puede alcanzar este nodo. Reinicia el servicio para aplicarlo.',
+    52: 'En el bloque ${height}; esperando a que Dogecoin Core informe de que la sincronización ha terminado',
   },
   de_DE: {
     0: 'Node-RPC mit anderen Paketen teilen',
@@ -106,6 +107,7 @@ export default {
     49: 'Es gibt keinen RPC-Benutzer namens ${username}. Vorhandene Benutzer: ${users}',
     50: 'RPC-Benutzer gelöscht',
     51: '${username} kann diesen Knoten nicht mehr erreichen. Starte den Dienst neu, um es anzuwenden.',
+    52: 'Bei Block ${height}; es wird darauf gewartet, dass Dogecoin Core die Synchronisation als abgeschlossen meldet',
   },
   pl_PL: {
     0: 'Udostępnij RPC węzła innym pakietom',
@@ -152,6 +154,7 @@ export default {
     49: 'Nie ma użytkownika RPC o nazwie ${username}. Istniejący użytkownicy: ${users}',
     50: 'Usunięto użytkownika RPC',
     51: '${username} nie może już połączyć się z tym węzłem. Zrestartuj usługę, aby to zastosować.',
+    52: 'Na bloku ${height}; oczekiwanie, aż Dogecoin Core zgłosi zakończenie synchronizacji',
   },
   fr_FR: {
     0: 'Partager le RPC du nœud avec d’autres paquets',
@@ -198,5 +201,6 @@ export default {
     49: 'Il n’y a pas d’utilisateur RPC nommé ${username}. Utilisateurs existants : ${users}',
     50: 'Utilisateur RPC supprimé',
     51: '${username} ne peut plus joindre ce nœud. Redémarrez le service pour l’appliquer.',
+    52: 'Au bloc ${height} ; en attente que Dogecoin Core signale la fin de la synchronisation',
   },
 } satisfies Record<string, LangDict>

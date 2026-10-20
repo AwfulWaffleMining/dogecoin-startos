@@ -48,6 +48,7 @@ const dict = {
   'There is no RPC user called ${username}. Existing users: ${users}': 49,
   'RPC user deleted': 50,
   '${username} can no longer reach this node. Restart the service to apply it.': 51,
+  'At block ${height}, waiting for Dogecoin Core to report the sync finished': 52,
 } as const
 
 /**

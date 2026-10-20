@@ -60,15 +60,14 @@ export const main = sdk.setupMain(async ({ effects }) => {
     LISTEN: store?.listen === false ? '0' : '1',
   }
 
-  /* Highest `headers` seen so far. Dogecoin fetches the header chain in
-   * batches, so during the first few minutes `headers` is "how many headers
-   * have arrived", not the network tip — and block/headers hovers near a
-   * constant small percentage while BOTH numbers climb. Comparing successive
-   * probes is how we tell "still collecting headers" from "headers done, now
-   * downloading blocks", which are the two phases a user actually wants
-   * distinguished. */
+  /* Highest `headers` seen so far, so the sync check can measure how fast the
+   * header chain is growing between probes. Dogecoin fetches headers in
+   * batches, so during the first minutes `headers` is "how many headers have
+   * arrived", not the network tip, and a percentage against it is measured
+   * against a moving target. The growth rate is what separates that phase
+   * from block download — see the check itself for why "did it stop moving"
+   * does not work. */
   let maxHeaders = 0
-  let headersStable = 0
 
   const readChainInfo = async (): Promise<ChainInfo | null> => {
     try {
@@ -141,28 +140,63 @@ export const main = sdk.setupMain(async ({ effects }) => {
             }
           }
 
-          if (headers > maxHeaders) {
-            maxHeaders = headers
-            headersStable = 0
-          } else {
-            headersStable += 1
-          }
+          /* How fast the header chain is growing, NOT whether it held still.
+           *
+           * Dogecoin pulls headers in batches of thousands during the header
+           * phase; once it has them, `headers` keeps advancing by about one a
+           * minute as blocks are mined. So a check that waits for `headers` to
+           * stop changing waits forever — and with a 30s probe against a 60s
+           * block target it reset on roughly every other probe, which made the
+           * message flap between the two phases instead of progressing. The
+           * growth RATE separates them cleanly; equality never could. */
+          const grew = headers - maxHeaders
+          if (headers > maxHeaders) maxHeaders = headers
+          const bulkFetching = grew > 10
 
-          /* Phase 1: the header chain is still arriving, so there is no
-             trustworthy denominator. Report the headers themselves — that
-             number climbing is the honest signal of progress — and do NOT
-             compute a percentage against a moving target. */
-          if (headersStable < 2 || !headers || headers <= blocks) {
+          if (!headers) {
             return {
               result: 'loading' as const,
               message: i18n(
                 'Fetching the header chain: ${headers} headers so far',
-                { headers: String(headers || 0) },
+                { headers: '0' },
               ),
             }
           }
 
-          /* Phase 2: headers have settled, so they are the network tip and
+          /* Blocks have reached every header this node knows of, yet it has
+           * not declared itself out of initial block download.
+           *
+           * This is NOT the start of a sync, where blocks is 0 and headers
+           * passes it within seconds — it is the end, and the previous version
+           * of this check routed it back into the "fetching the header chain"
+           * message and pinned there for good. Report the height instead: a
+           * percentage here would read 100% while the service sat yellow,
+           * which is worse than saying plainly what is being waited on. */
+          if (blocks >= headers) {
+            return {
+              result: 'loading' as const,
+              message: i18n(
+                'At block ${height}, waiting for Dogecoin Core to report the sync finished',
+                { height: String(blocks) },
+              ),
+            }
+          }
+
+          /* Headers are still arriving in bulk, so they are not yet the
+             network tip and there is no trustworthy denominator. Report the
+             headers themselves — that number climbing is the honest signal of
+             progress — rather than a percentage against a moving target. */
+          if (bulkFetching) {
+            return {
+              result: 'loading' as const,
+              message: i18n(
+                'Fetching the header chain: ${headers} headers so far',
+                { headers: String(headers) },
+              ),
+            }
+          }
+
+          /* Headers have settled to a trickle, so they are the network tip and
            * block/headers is a real percentage.
            *
            * Deliberately NOT verificationprogress, which is weighted by
