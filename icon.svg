@@ -1,13 +1,2 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Coin and pickaxe">
-  <defs>
-    <linearGradient id="c" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f6d36b"/>
-      <stop offset="1" stop-color="#c89b2a"/>
-    </linearGradient>
-  </defs>
-  <circle cx="32" cy="32" r="26" fill="url(#c)" stroke="#8a6a14" stroke-width="2.5"/>
-  <circle cx="32" cy="32" r="19.5" fill="none" stroke="#8a6a14" stroke-width="1.5" opacity="0.5"/>
-  <path d="M18 44 L46 20" stroke="#4a3a10" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M38 14 Q50 16 52 28 Q44 26 38 14 Z" fill="#6b5412"/>
-  <path d="M24 24 h8 a7 7 0 0 1 0 14 h-8 z M24 24 v20" fill="none" stroke="#4a3a10" stroke-width="3" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img"><title>Dogecoin icon</title>
+<circle cx="12" cy="12" r="11.4" fill="#fff"/><path fill="#c2a633" d="M12.288 7.908h-1.715v3.38h2.697v1.415h-2.697v3.38h1.799c.462 0 3.794.052 3.789-3.933s-3.232-4.242-3.873-4.242M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0m.472 18.481H8.126v-5.778H6.594v-1.415h1.532V5.511h3.73c.882 0 6.727-.183 6.727 6.594-.001 6.888-6.111 6.376-6.111 6.376"/></svg>
